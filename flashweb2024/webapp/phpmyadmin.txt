@@ -1,0 +1,285 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Gép: 127.0.0.1
+-- Létrehozás ideje: 2024. Ápr 28. 21:22
+-- Kiszolgáló verziója: 10.4.32-MariaDB
+-- PHP verzió: 8.2.12
+
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Adatbázis: `moodle_2.0`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `approved_degrees`
+--
+
+CREATE TABLE `approved_degrees` (
+  `id` int(100) NOT NULL,
+  `course_id` int(100) NOT NULL,
+  `degree_id` int(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `approved_degrees`
+--
+
+INSERT INTO `approved_degrees` (`id`, `course_id`, `degree_id`) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 2),
+(4, 4, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `courses`
+--
+
+CREATE TABLE `courses` (
+  `id` int(100) NOT NULL,
+  `code` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `credit` int(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `courses`
+--
+
+INSERT INTO `courses` (`id`, `code`, `name`, `credit`) VALUES
+(1, 'VASABRENDSZER', 'rendszerfejlesztés', 5),
+(2, 'VASABPYTHON', 'python', 5),
+(3, 'VASABDIMAT', 'diszkrét_matematika', 1),
+(4, 'VASABWEBFEJL', 'webfejlesztés', 5);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `degrees`
+--
+
+CREATE TABLE `degrees` (
+  `id` int(100) NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `degrees`
+--
+
+INSERT INTO `degrees` (`id`, `name`) VALUES
+(1, 'MIK'),
+(2, 'GTK'),
+(3, 'HDD');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `events`
+--
+
+CREATE TABLE `events` (
+  `id` int(100) NOT NULL,
+  `course_id` int(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `events`
+--
+
+INSERT INTO `events` (`id`, `course_id`, `name`, `description`) VALUES
+(1, 1, 'beadandó! következõ alkalomra!', 'kötelezõ megjelenés'),
+(2, 2, 'zh!', 'kötelezõ megjelenés'),
+(3, 3, 'veszekedés', 'majd én megmondom'),
+(4, 4, 'php zh', 'kötelezõ megjelenés');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `mycourse`
+--
+
+CREATE TABLE `mycourse` (
+  `id` int(100) NOT NULL,
+  `user_id` int(100) NOT NULL,
+  `course_id` int(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `mycourse`
+--
+
+INSERT INTO `mycourse` (`id`, `user_id`, `course_id`) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3),
+(6, 4, 2),
+(7, 4, 1),
+(9, 1, 2),
+(11, 5, 3),
+(12, 3, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(100) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `degree_id` int(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `name`, `password`, `degree_id`) VALUES
+(1, 'John00', 'John', 'asdf', 1),
+(2, 'Smith00', 'Smith', 'asdf', 2),
+(3, 'Thomas00', 'Thomas', 'asdf', 3),
+(4, 'Dani00', 'Dani', 'asdf', 1),
+(5, 'Eli00', 'Eliza', 'asdf', 2),
+(6, 'Zoli00', 'Zoli', 'asdf', 2);
+
+--
+-- Indexek a kiírt táblákhoz
+--
+
+--
+-- A tábla indexei `approved_degrees`
+--
+ALTER TABLE `approved_degrees`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `degree_id` (`degree_id`);
+
+--
+-- A tábla indexei `courses`
+--
+ALTER TABLE `courses`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `degrees`
+--
+ALTER TABLE `degrees`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `events`
+--
+ALTER TABLE `events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- A tábla indexei `mycourse`
+--
+ALTER TABLE `mycourse`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `course_id` (`course_id`);
+
+--
+-- A tábla indexei `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `gegree_id` (`degree_id`);
+
+--
+-- A kiírt táblák AUTO_INCREMENT értéke
+--
+
+--
+-- AUTO_INCREMENT a táblához `approved_degrees`
+--
+ALTER TABLE `approved_degrees`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT a táblához `courses`
+--
+ALTER TABLE `courses`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT a táblához `degrees`
+--
+ALTER TABLE `degrees`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT a táblához `events`
+--
+ALTER TABLE `events`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT a táblához `mycourse`
+--
+ALTER TABLE `mycourse`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT a táblához `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Megkötések a kiírt táblákhoz
+--
+
+--
+-- Megkötések a táblához `approved_degrees`
+--
+ALTER TABLE `approved_degrees`
+  ADD CONSTRAINT `approved_degrees_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`),
+  ADD CONSTRAINT `approved_degrees_ibfk_2` FOREIGN KEY (`degree_id`) REFERENCES `degrees` (`id`);
+
+--
+-- Megkötések a táblához `events`
+--
+ALTER TABLE `events`
+  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+
+--
+-- Megkötések a táblához `mycourse`
+--
+ALTER TABLE `mycourse`
+  ADD CONSTRAINT `mycourse_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `mycourse_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+
+--
+-- Megkötések a táblához `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`degree_id`) REFERENCES `degrees` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

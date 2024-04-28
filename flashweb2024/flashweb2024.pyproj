@@ -41,6 +41,7 @@
     <Compile Include="webapp\__init__.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="webapp\phpmyadmin.txt" />
     <Content Include="webapp\templates\hallgatok.html" />
     <Content Include="webapp\templates\index.html" />
     <Content Include="webapp\templates\kurzusfelvetel.html" />
