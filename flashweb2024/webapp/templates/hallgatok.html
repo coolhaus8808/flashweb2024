@@ -11,6 +11,7 @@
 
     <!-- Szűrő form -->
     <form action="/hallgatok_szures" method="get">
+        <input type="hidden" name="user_id" value="{{ user_id }}">
         <label for="degree">Szak:</label>
         <select name="degree" id="degree">
             <option value="0">Összes</option>
@@ -43,6 +44,8 @@
         </tbody>
     </table>
 
+    <br>
+    <a href="{{ url_for('user', user_id=user_id) }}">Vissza a kezdőlapra</a>
 
 
 </body>

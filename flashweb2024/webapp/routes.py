@@ -1,18 +1,59 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from webapp import app, db
 from webapp.models import User, MyCourse, Course, Degree, ApprovedDegree
 
+def authenticate(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.check_password(password):
+        return user
+    
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.get(user_id)
+
+jwt = JWTManager(app)
+
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+
+# Felhasználó bejelentkezése API
+@app.route("/api/login", methods=['POST'])
+def api_login():
+    data = request.get_json()
+    username = data.get('username', None)
+    password = data.get('password', None)
+    
+    user = authenticate(username, password)
+    if user:
+        access_token = create_access_token(identity=user.id)
+        return jsonify({'access_token': access_token})
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+# Példa védett végpont JWT token-nel
+@app.route("/api/protected", methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
 
 @app.route("/")
 @app.route("/index")
 def index():
     
-     users = User.query.all()
-     return render_template('index.html', users=users)
+    users = User.query.all()
+    return render_template('index.html', users=users)
 
 
 @app.route("/login", methods=['POST'])
 def login():
+    
     username = request.form['username']
     password = request.form['password']
     session['username'] = username
@@ -31,12 +72,12 @@ def login():
         # Ha a felhasználónév vagy jelszó helytelen, visszairányítás az index.html oldalra
         flash('Incorrect username or password', 'error')
         return redirect(url_for('index'))
-    
+
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
     # Felhasználó kurzusainak lekérése az adatbázisból
-    if session['username']!="":
+    if len(session) >0:
         user = User.query.get_or_404(user_id)
         mycourses = MyCourse.query.filter_by(user_id=user_id).all()
         courses = Course.query.all()
@@ -44,8 +85,9 @@ def user(user_id):
 
         degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
         return render_template('user.html',user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees)
-    
-
+    else:
+        flash('You are not logged in!', 'error')
+        return redirect(url_for('index'))
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -71,7 +113,7 @@ def register():
 
 @app.route("/szuro")
 def szuro():
-
+    
     user_id = request.args.get('user_id', type=int)
     degrees = Degree.query.all()
     degree_id = request.args.get('degree', type=int)
@@ -84,7 +126,7 @@ def szuro():
 
     all_courses = Course.query.all()
     
-     # Lekérjük a felhasználót az adatbázisból a user_id alapján
+    # Lekérjük a felhasználót az adatbázisból a user_id alapján
     user = User.query.filter_by(id=user_id).first()
 
     return render_template('szures.html', user_id=user_id, degrees=degrees, filtered_courses=filtered_courses, all_courses=all_courses)
@@ -115,6 +157,7 @@ def hallgatok_szures():
     return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses)
 
 
+
 @app.route("/kurzus_felvetel/<int:user_id>", methods=['GET', 'POST'])
 def kurzus_felvetel(user_id):
     if request.method == 'POST':
@@ -141,7 +184,7 @@ def kurzus_felvetel(user_id):
         flash('Sikeres kurzus felvetel: {}'.format(course_code), 'success')
         return redirect(url_for('kurzus_felvetel', user_id=user_id))
 
-        # GET kérés esetén a kurzus felvétele oldal megjelenítése
+    # GET kérés esetén a kurzus felvétele oldal megjelenítése
     user = User.query.get_or_404(user_id)
     user_degree_id = user.degree_id
     available_courses = Course.query.join(ApprovedDegree).filter(ApprovedDegree.degree_id == user_degree_id).all()
@@ -157,4 +200,4 @@ def logout():
 
     session.clear()
     # Átirányítás az index oldalra
-    return render_template("index.html")
+    return redirect(url_for("index"))
