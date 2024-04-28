@@ -41,6 +41,7 @@ def user(user_id):
         mycourses = MyCourse.query.filter_by(user_id=user_id).all()
         courses = Course.query.all()
     
+
         degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
         return render_template('user.html',user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees)
     
