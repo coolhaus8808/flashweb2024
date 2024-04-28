@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felhasználó kurzusai</title>
+
+</head>
+
+<body style="background-color: lightblue;">
+    <h1>Szűrés szak szerint:</h1>
+    <form action="/szuro" method="get">
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+        <label for="degree">Szak:</label>
+        <select name="degree" id="degree">
+            <option value="0">Összes</option>
+            <option value="1">MIK</option>
+            <option value="2">GTK</option>
+            <option value="3">HDD</option>
+        </select>
+        <input type="submit" value="Szűrés">
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Kurzuskód</th>
+                <th>Kurzusnév</th>
+                <th>Kredit</th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+            {% for course in filtered_courses %}
+            <tr>
+                <td>{{ course.id }}</td>
+                <td>{{ course.code }}</td>
+                <td>{{ course.name }}</td>
+                <td>{{ course.credit }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <br>
+
+    <a href="{{ url_for('user', user_id=user_id) }}">Vissza a kezdőlapra</a>
+
+
+
+</body>
+</html>

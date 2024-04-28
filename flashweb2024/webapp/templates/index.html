@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kezdőlap</title>
+</head>
+<body style="background-color: dimgray;">
+    <h1>Üdv a Moodle_2.0 lapján!</h1>
+
+    <h2>Bejelentkezés</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <div style="background-color: #ff9999; color: #ffffff; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
+    </div>
+    <br>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form action="/login" method="post">
+        <label for="username">Felhasználónév:</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Jelszó:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="submit" value="Bejelentkezés">
+    </form>
+
+    <h2>Regisztráció</h2>
+    {% with reg_messages = get_flashed_messages(category_filter='registration', with_categories=true) %}
+    {% if reg_messages %}
+    {% for category, message in reg_messages %}
+    <div class="alert alert-{{ category }}">
+        <div style="background-color: #99ff99; color: #000000; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
+    </div>
+    <br>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form action="/register" method="post">
+        <label for="reg_username">Felhasználónév:</label><br>
+        <input type="text" id="reg_username" name="reg_username"><br>
+        <label for="reg_password">Jelszó:</label><br>
+        <input type="password" id="reg_password" name="reg_password"><br><br>
+        <label for="reg_name">Név:</label><br>
+        <input type="text" id="reg_name" name="reg_name"><br><br>
+        <select id="reg_degree" name="reg_degree">
+            <option value="1">MIK</option>
+            <option value="2">GTK</option>
+            <option value="3">HDD</option>
+        </select><br><br>        <input type="submit" value="Regisztráció">
+    </form>
+</body>
+</html>

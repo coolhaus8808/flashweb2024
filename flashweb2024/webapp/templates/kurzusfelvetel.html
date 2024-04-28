@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurzus felvétele</title>
+</head>
+<body>
+
+    <h1>Kurzus felvétele</h1>
+
+
+
+
+    <form action="/kurzus_felvetel/{{ user_id }}" method="post">
+        <label for="course_code">Kurzus kódja:</label>
+        <select name="course_code" id="course_code">
+            {% for course in available_courses %}
+            <option value="{{ course.code }}">{{ course.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Kurzus felvétele">
+    </form>
+
+    <br>
+    <br>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+
+
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
+    <a href="{{ url_for('user', user_id=user_id) }}">Vissza a kezdőlapra</a>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felhasználó kurzusai</title>
+
+</head>
+
+<body style="background-color: lightblue;">
+
+
+    <h1>Bejelentkezett felhasználó: {{ user }}</h1>
+
+    <h3> Felhasználó kurzusai</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Kurzuskód</th>
+                <th>Kurzusnév</th>
+                <th>Kredit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in mycourses %}
+            {% for x in courses %}
+            {% if course.course_id == x.id %}
+            <tr>
+                <td>{{ x.id }}</td>
+                <td>{{ x.code }}</td>
+                <td>{{ x.name }}</td>
+                <td>{{ x.credit }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+
+
+    <br>
+    <br>
+
+    <a href="{{ url_for('kurzus_felvetel', user_id=user_id) }}">KURZUS FELVÉTELE</a>
+
+    <br>
+    <br>
+
+
+
+    <a href="{{ url_for('szuro', user_id=user_id) }}">KURZUSOK SZŰRÉSE</a>
+
+
+    <br>
+    <br>
+
+
+    <a href="{{ url_for('hallgatok', user_id=user_id) }}">KURZUSOK HALLGATÓK SZERINT</a>
+
+    <br>
+    <br>
+
+
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit">Kijelentkezés</button>
+    </form>
+</body>
+</html>

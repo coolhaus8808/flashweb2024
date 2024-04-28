@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurzusok szűrése hallgatók szerint</title>
+</head>
+<body style="background-color: lightgreen;">
+
+    <h1>Kurzusok szűrése hallgatók szerint</h1>
+
+    <!-- Szűrő form -->
+    <form action="/hallgatok_szures" method="get">
+        <label for="degree">Szak:</label>
+        <select name="degree" id="degree">
+            <option value="0">Összes</option>
+            <option value="1">MIK</option>
+            <option value="2">GTK</option>
+            <option value="3">HDD</option>
+        </select>
+        <input type="submit" value="Szűrés">
+    </form>
+
+    <!-- Hallgatók és kurzusok táblázata -->
+    <table>
+        <thead>
+            <tr>
+                <th>Hallgató</th>
+                <th>Kurzuskód</th>
+                <th>Kurzusnév</th>
+                <th>Kredit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student_course in student_courses %}
+            <tr>
+                <td>{{ student_course.student.username }}</td>
+                <td>{{ student_course.course.code }}</td>
+                <td>{{ student_course.course.name }}</td>
+                <td>{{ student_course.course.credit }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+</body>
+</html>
