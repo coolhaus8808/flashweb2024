@@ -4,6 +4,7 @@ import pymysql
 from flask import Flask #pip install flask
 from flask_sqlalchemy import SQLAlchemy
 
+
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 logging.basicConfig()

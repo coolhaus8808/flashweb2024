@@ -57,3 +57,14 @@ class ApprovedDegree(db.Model):
 
     def __repr__(self):
         return '<ApprovedDegree {}>'.format(self.id)
+    
+
+class Events(db.Model):
+    __tablename__ = 'events'
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(50))
+    
+    def __repr__(self):
+        return '<Events {}>'.format(self.id)

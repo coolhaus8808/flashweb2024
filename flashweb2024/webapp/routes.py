@@ -1,7 +1,7 @@
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from webapp import app, db
-from webapp.models import User, MyCourse, Course, Degree, ApprovedDegree
+from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -191,8 +191,14 @@ def kurzus_felvetel(user_id):
 
     return render_template('kurzusfelvetel.html', user_id=user_id, available_courses=available_courses)
 
+@app.route("/events")
+def events():
 
+    user_id = session.get('userid')
+    user_courses = MyCourse.query.filter_by(user_id=user_id).all()
+    events = Events.query.all()
 
+    return render_template('esemenyek.html',user_id=user_id, user_courses=user_courses, events=events)
 
 @app.route("/logout", methods=["POST"])
 def logout():

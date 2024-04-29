@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Események</title>
+</head>
+<body style="background-color: lightseagreen;">
+    <h1>Események</h1>
+    <ul>
+        {% for event in events %}
+        {% for course in user_courses %}
+        {% if event.course_id == course.course_id %}
+        <li>Kurzus kódja: {{ course.course.code }} - {{ event.name }} - {{ event.description }}</li>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="{{ url_for('user', user_id=user_id) }}">Vissza a kezdőlapra</a>
+</body>
+</html>
