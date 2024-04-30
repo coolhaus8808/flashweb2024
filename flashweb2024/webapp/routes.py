@@ -1,13 +1,15 @@
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from webapp import app, db
+from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
-    if user and user.check_password(password):
+    if user and check_password_hash(user.password_hash, password):
         return user
     
+
 def identity(payload):
     user_id = payload['identity']
     return User.query.get(user_id)
@@ -56,20 +58,16 @@ def login():
     
     username = request.form['username']
     password = request.form['password']
-    session['username'] = username
-    session['password'] = password
-    
-
-    # Felhasználó lekérése az adatbázisból
-    user = User.query.filter_by(username=username).first()
-    
-    # Ellenõrzés, hogy a felhasználó létezik és a megadott jelszó megfelelõ
-    if user and user.check_password(password):
+    user = authenticate(username, password)
+    if user:
+        
+        session['username'] = username
         session['userid'] = user.id
-        # Ha a felhasználónév és jelszó megfelelõ, átirányítás az user.html oldalra
+        
         return redirect(url_for('user', user_id=user.id))
+ 
     else:
-        # Ha a felhasználónév vagy jelszó helytelen, visszairányítás az index.html oldalra
+        
         flash('Incorrect username or password', 'error')
         return redirect(url_for('index'))
 
@@ -95,20 +93,31 @@ def register():
     password = request.form['reg_password']
     name = request.form['reg_name']
     degree_id = request.form['reg_degree']
+    
 
-    # Ellenõrizzük, hogy a felhasználónév már létezik-e az adatbázisban
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
-        flash('Foglalt username', 'registration_error')
+        flash('Username already taken', 'registration_error')
         return redirect(url_for('index', _anchor='registration'))
 
-    # Ha a felhasználónév még nem létezik, hozzáadjuk az új felhasználót az adatbázishoz
-    new_user = User(username=username, password=password, name=name, degree_id=degree_id)
+    # Csak az új felhasználókhoz hozzáadott sózott jelszó
+    password_hash = generate_password_hash(password)
+
+    new_user = User(username=username, password=password, password_hash=password_hash, name=name, degree_id=degree_id)
     db.session.add(new_user)
     db.session.commit()
-    
-    flash('Registration succes!', 'registration_success')
+
+    flash('Registration successful!', 'registration_success')
     return redirect(url_for('index', _anchor='registration'))
+
+def convert_passwords():
+    users = User.query.all()
+    for user in users:
+        # Csak ahol van jelszó, de nincs sózott jelszó
+        if user.password and not user.password_hash:
+            user.password_hash = generate_password_hash(user.password)
+            db.session.commit()
+
 
 
 @app.route("/szuro")
@@ -184,7 +193,7 @@ def kurzus_felvetel(user_id):
         flash('Sikeres kurzus felvetel: {}'.format(course_code), 'success')
         return redirect(url_for('kurzus_felvetel', user_id=user_id))
 
-    # GET kérés esetén a kurzus felvétele oldal megjelenítése
+    # GET kérés esetén a kurzusfelvetel.html
     user = User.query.get_or_404(user_id)
     user_degree_id = user.degree_id
     available_courses = Course.query.join(ApprovedDegree).filter(ApprovedDegree.degree_id == user_degree_id).all()

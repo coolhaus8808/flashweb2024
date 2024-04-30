@@ -7,14 +7,22 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
+    password_hash = db.Column(db.String(100))
     name = db.Column(db.String(100))
     degree_id = db.Column(db.Integer, db.ForeignKey('degrees.id'))
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
-
+    
     def check_password(self, password):
-        return self.password == password    
+        return check_password_hash(self.password, password)
+
+def check_password(self, password):
+        # Ha a password_hash oszlop üres, használjuk a régi jelszót
+        if not self.password_hash:
+            return self.password == password
+        # Ellenkezõ esetben ellenõrizzük a sózott jelszót
+        return check_password_hash(self.password_hash, password)    
 
 class MyCourse(db.Model):
     __tablename__ = 'mycourse'  # Megadja az adatbázisban használt tábla nevét

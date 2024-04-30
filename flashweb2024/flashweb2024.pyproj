@@ -33,6 +33,9 @@
     <Folder Include="webapp\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="password_conversion.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run.py" />
     <Compile Include="webapp\models.py">
       <SubType>Code</SubType>
