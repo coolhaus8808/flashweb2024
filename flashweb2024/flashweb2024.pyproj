@@ -16,8 +16,7 @@
     <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
     <Name>flashweb2024</Name>
     <RootNamespace>flashweb2024</RootNamespace>
-    <WebBrowserPort>
-    </WebBrowserPort>
+    <WebBrowserPort>5555</WebBrowserPort>
     <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

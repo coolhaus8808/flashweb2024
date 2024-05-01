@@ -12,7 +12,7 @@ logger = logging.getLogger('pymysql')
 logger.setLevel(logging.DEBUG)
 
 # SQLAlchemy inicializálása
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/moodle_2.0'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://freedb_mysql:JjkS2MB?65q5*bx@sql.freedb.tech:3306/freedb_mysql.'
 db = SQLAlchemy(app)
 
 from webapp import routes, models
