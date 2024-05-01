@@ -7,8 +7,7 @@ from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password_hash, password):
-        return user
-    
+        return user    
 
 def identity(payload):
     user_id = payload['identity']
@@ -103,7 +102,7 @@ def register():
     # Csak az új felhasználókhoz hozzáadott sózott jelszó
     password_hash = generate_password_hash(password)
 
-    new_user = User(username=username, password=password, password_hash=password_hash, name=name, degree_id=degree_id)
+    new_user = User(username=username, password_hash=password_hash, name=name, degree_id=degree_id)
     db.session.add(new_user)
     db.session.commit()
 

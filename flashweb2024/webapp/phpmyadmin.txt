@@ -3,10 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2024. Ápr 28. 21:22
+-- Létrehozás ideje: 2024. Máj 01. 12:44
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
-
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -127,14 +126,14 @@ CREATE TABLE `mycourse` (
 --
 
 INSERT INTO `mycourse` (`id`, `user_id`, `course_id`) VALUES
-(1, 1, 1),
-(2, 2, 2),
-(3, 3, 3),
-(6, 4, 2),
-(7, 4, 1),
-(9, 1, 2),
-(11, 5, 3),
-(12, 3, 4);
+(27, 1, 1),
+(28, 1, 2),
+(29, 5, 3),
+(30, 4, 4),
+(31, 2, 3),
+(32, 3, 1),
+(33, 3, 2),
+(34, 6, 3);
 
 -- --------------------------------------------------------
 
@@ -146,7 +145,6 @@ CREATE TABLE `users` (
   `id` int(100) NOT NULL,
   `username` varchar(100) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `password` varchar(50) NOT NULL,
   `password_hash` varchar(500) NOT NULL,
   `degree_id` int(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -155,13 +153,15 @@ CREATE TABLE `users` (
 -- A tábla adatainak kiíratása `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `name`, `password`, `degree_id`) VALUES
-(1, 'John00', 'John', 'asdf', 1),
-(2, 'Smith00', 'Smith', 'asdf', 2),
-(3, 'Thomas00', 'Thomas', 'asdf', 3),
-(4, 'Dani00', 'Dani', 'asdf', 1),
-(5, 'Eli00', 'Eliza', 'asdf', 2),
-(6, 'Zoli00', 'Zoli', 'asdf', 2);
+INSERT INTO `users` (`id`, `username`, `name`, `password_hash`, `degree_id`) VALUES
+(1, 'John00', 'John', 'scrypt:32768:8:1$KPbKbDihmpvxWsGU$d141173cae076b88b6a20cf6e0719e4a3c6e8b2588490d011e5a2168a075c73f7efdda77d7b8e9843e948af06422150d304d3382d7880736639d061353bc787e', 1),
+(2, 'Jozsi00', 'József', 'scrypt:32768:8:1$77Q4ea2Gx66liaxY$1eb0d3cc948adea17e7cdf7f48c6ebf87d014747867424b9eb6251e967c7d69d891b182859e18fba6efea21014c12444f870c676b0a6e7a359dbf505af039137', 2),
+(3, 'Dani00', 'Dani', 'scrypt:32768:8:1$QK0acIaFPs59mTI0$5011483622296c3cf430d9f7e30814dbe0442dd60f395c9b30ddebcd068192b9dc5ad577b15d4f491a6c38ba292242434df1bfac1bb892ab327fd70da8897b13', 1),
+(4, 'Thomas00', 'Thomas', 'scrypt:32768:8:1$FtJuOljTSwHGoFU6$b31dfa3b3b42aeb41620cc5089d4e8cd43e0d7b40130f1c55262d1913fdbc99e65bd79c89492952b4e9775ac5924cb432ac2f208de2b354528379fcbb3d9ad1c', 3),
+(5, 'Eli00', 'Eliza', 'scrypt:32768:8:1$TRn0wuwSjdSYRiDz$cdc705e7569cdae624205cca6a408e7c07a3010cf589736f52564e9b831bc9f637d16997d10d5026f4578cfa03e890dc830d30713efd99f97e183bd622da304d', 2),
+(6, 'Uborka00', 'Ubi', 'scrypt:32768:8:1$wMi4U9fsqgffTUv6$58af848e47c33e1f00053dd1fa3e51b9523f8f5f5af31c0f3f3b98539decb27713550c80b023ef14133732e62fb8e1468f981a9e3966b1cd233bbf3ceb8a40a9', 2),
+(7, 'Smith00', 'Smith', 'scrypt:32768:8:1$6jgQYCT2rwwyxm5f$a0e69dd4eec85ab8836dfc3161fc14ac0b0473ac81e503790e93f9fc57e85bfd18d36fa1568f30128548ccdb3a905b8449adb86d2d48fb365013789219bcab2c', 2),
+(8, 'Zoli00', 'Zoli', 'scrypt:32768:8:1$4yvaDYy26m1GoVku$03bee728502f13acc1254e5310f9e38a8f9739837bd4e3ddca53697096bc4b9e57b9c92840cd28d289f38156232b5ee90dcac0735bcfa12226229ea3a9543b87', 2);
 
 --
 -- Indexek a kiírt táblákhoz
@@ -171,9 +171,7 @@ INSERT INTO `users` (`id`, `username`, `name`, `password`, `degree_id`) VALUES
 -- A tábla indexei `approved_degrees`
 --
 ALTER TABLE `approved_degrees`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `course_id` (`course_id`),
-  ADD KEY `degree_id` (`degree_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `courses`
@@ -191,24 +189,19 @@ ALTER TABLE `degrees`
 -- A tábla indexei `events`
 --
 ALTER TABLE `events`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `course_id` (`course_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `mycourse`
 --
 ALTER TABLE `mycourse`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `course_id` (`course_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`),
-  ADD KEY `gegree_id` (`degree_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- A kiírt táblák AUTO_INCREMENT értéke
@@ -227,58 +220,16 @@ ALTER TABLE `courses`
   MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT a táblához `degrees`
---
-ALTER TABLE `degrees`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT a táblához `events`
---
-ALTER TABLE `events`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
 -- AUTO_INCREMENT a táblához `mycourse`
 --
 ALTER TABLE `mycourse`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- Megkötések a kiírt táblákhoz
---
-
---
--- Megkötések a táblához `approved_degrees`
---
-ALTER TABLE `approved_degrees`
-  ADD CONSTRAINT `approved_degrees_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`),
-  ADD CONSTRAINT `approved_degrees_ibfk_2` FOREIGN KEY (`degree_id`) REFERENCES `degrees` (`id`);
-
---
--- Megkötések a táblához `events`
---
-ALTER TABLE `events`
-  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-
---
--- Megkötések a táblához `mycourse`
---
-ALTER TABLE `mycourse`
-  ADD CONSTRAINT `mycourse_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `mycourse_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-
---
--- Megkötések a táblához `users`
---
-ALTER TABLE `users`
-  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`degree_id`) REFERENCES `degrees` (`id`);
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

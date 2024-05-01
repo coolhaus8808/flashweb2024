@@ -6,7 +6,6 @@ class User(db.Model):
     __tablename__ = 'users'  # Megadja az adatbázisban használt tábla nevét
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
     password_hash = db.Column(db.String(100))
     name = db.Column(db.String(100))
     degree_id = db.Column(db.Integer, db.ForeignKey('degrees.id'))
