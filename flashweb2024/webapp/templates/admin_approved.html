@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approved Degrees szerkesztése</title>
+</head>
+<body style="background-color: palevioletred;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'success' or category == 'error' %}
+    <div class="alert alert-success">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <h1>Szak és kurzus szerkesztése</h1>
+
+    <form method="POST">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Course ID</th>
+                    <th>Degree ID</th>
+                    <th>Szerkesztés</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for degree in approved_degrees %}
+                <tr>
+                    <td>{{ degree.id }}</td>
+                    <td><input type="text" name="course_id_{{ degree.id }}" value="{{ degree.course_id }}"></td>
+                    <td><input type="text" name="degree_id_{{ degree.id }}" value="{{ degree.degree_id }}"></td>
+                    <td><input type="checkbox" name="selected_degrees[]" value="{{ degree.id }}"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" name="edit_selected_degrees">Kiválasztottak szerkesztése</button>
+    </form>
+
+    <form method="POST">
+        <label for="new_course_id">Course ID:</label>
+        <input type="text" id="new_course_id" name="new_course_id">
+        <label for="new_degree_id">Degree ID:</label>
+        <input type="text" id="new_degree_id" name="new_degree_id">
+        <button type="submit" name="add_new_degree">Új szak&kurzus</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('admin', user_id=user_id) }}">Kezdőlap</a>
+
+</body>
+</html>

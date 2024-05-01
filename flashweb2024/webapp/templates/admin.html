@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body style="background-color: palevioletred;">
+
+    <h1>Bejelentkezett felhasználó: {{ user }}</h1>
+
+    <h3> Felhasználók</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Degree</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                {% if student.name != "admin" %}
+                <td>{{ student.id }}</td>
+                <td>{{ student.username }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.degree_id }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><br>
+    <a href="{{ url_for('edit_user', user_id=user_id) }}">Felhasználók szerkesztése</a>
+    <br><br>
+    <h3> Kurzusok </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.id }}</td>
+                <td>{{ course.code }}</td>
+                <td>{{ course.name }}</td>
+                <td>{{ course.credit }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><br>
+    <a href="{{ url_for('edit_course', user_id=user_id) }}">Kurzusok szerkesztése</a>
+    <br><br>
+
+    <h3> Szak és Kurzus </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Course_id</th>
+                <th>Degree_id</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in approved %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.course_id }}</td>
+                <td>{{ app.degree_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><br>
+    <a href="{{ url_for('edit_approved_degrees', user_id=user_id) }}">Szak és Kurzus szerkesztése</a>
+    <br><br>
+
+    <h3> Szakok </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for degree in degrees %}
+            <tr>
+                <td>{{ degree.id }}</td>
+                <td>{{ degree.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3> Közlemények</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Course id</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>{{ event.course_id }}</td>
+                <td>{{ event.name }}</td>
+                <td>{{ event.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br><br>
+
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit">Kijelentkezés</button>
+    </form>
+
+
+</body>
+</html>
