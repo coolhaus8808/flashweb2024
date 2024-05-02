@@ -13,6 +13,7 @@
         <input type="hidden" name="user_id" value="{{ user_id }}">
         <label for="degree">Szak:</label>
         <select name="degree" id="degree">
+            <option value="">Válassz szakot...</option>
             {% for degre in degrees %}
             {% if degre.id %}
             <option value={{ degre.id }}> {{ degre.name }}</option>

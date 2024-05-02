@@ -7,13 +7,14 @@
 </head>
 <body style="background-color: lightgreen;">
 
-    <h1>Kurzusok szűrése hallgatók szerint</h1>
+    <h1>Hallgatók szakok szerint</h1>
 
     <!-- Szűrő form -->
     <form action="/hallgatok_szures" method="get">
         <input type="hidden" name="user_id" value="{{ user_id }}">
         <label for="degree">Szak:</label>
         <select name="degree" id="degree">
+            <option value="">Válassz szakot...</option>
             {% for degre in degrees %}
             {% if degre.id %}
             <option value={{ degre.id }}> {{ degre.name }}</option>

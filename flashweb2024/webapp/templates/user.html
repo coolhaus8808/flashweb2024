@@ -9,11 +9,8 @@
 
 <body style="background-color: lightblue;">
 
-    
-
     <h1>Bejelentkezett felhasználó: {{ user }}</h1>
 
-    <h3> Felhasználó kurzusai</h3>
 
     <table>
         <thead>
@@ -60,7 +57,7 @@
     <br>
 
 
-    <a href="{{ url_for('hallgatok', user_id=user_id) }}">KURZUSOK HALLGATÓK SZERINT</a>
+    <a href="{{ url_for('hallgatok', user_id=user_id) }}"> HALLGATÓK SZAKOK SZERINT</a>
 
     <br>
     <br>

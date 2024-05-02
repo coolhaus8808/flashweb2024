@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from webapp import app, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
-   
+
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password_hash, password):
@@ -161,6 +161,7 @@ def hallgatok():
 
 @app.route("/hallgatok_szures", methods=['GET'])
 def hallgatok_szures():
+    degrees = Degree.query.all()
     user_id = request.args.get('user_id', type=int)
     # Szûrés a hallgatók szerint
     degree_id = request.args.get('degree', type=int)
@@ -170,7 +171,7 @@ def hallgatok_szures():
         student_courses = MyCourse.query.join(User).join(Course).join(ApprovedDegree).filter(ApprovedDegree.degree_id == degree_id).all()
     else:
         student_courses = []
-    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses)
+    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses,degrees=degrees)
 
 
 
@@ -289,7 +290,7 @@ def edit_course(user_id):
                 db.session.add(new_course)
                 db.session.commit()
 
-                flash('Kurzus succes', 'success')
+                flash('Kurzus added', 'success')
             else:
                 flash('Minden adat kell!', 'error')
     
@@ -300,53 +301,48 @@ def edit_course(user_id):
 def edit_approved_degrees(user_id):
     if request.method == 'POST':
         if 'edit_selected_degrees' in request.form:
-            selected_degrees = request.form.getlist('selected_degrees')
+            selected_degrees = request.form.getlist('selected_degrees[]')
 
             for degree_id in selected_degrees:
                 degree = ApprovedDegree.query.get_or_404(degree_id)
                 new_course_id = request.form[f'course_id_{degree_id}']
                 new_degree_id = request.form[f'degree_id_{degree_id}']
-
                 if new_course_id and new_degree_id:
                     degree.course_id = new_course_id
                     degree.degree_id = new_degree_id
-                    db.session.commit()
-                else:
-                    flash('Minden adat kotelezo!', 'error')
 
+                db.session.commit()
+                
+            flash('Adatok update!', 'success')
+                    
         elif 'add_new_degree' in request.form:
             new_course_id = request.form['new_course_id']
             new_degree_id = request.form['new_degree_id']
+            new_degree = ApprovedDegree(course_id=new_course_id, degree_id=new_degree_id)
+            if new_course_id and new_degree_id and new_degree:
 
-            if new_course_id and new_degree_id:
-                new_degree = ApprovedDegree(course_id=new_course_id, degree_id=new_degree_id)
                 db.session.add(new_degree)
                 db.session.commit()
-                flash('Uj sor hozzaadva!', 'success')
-            else:
-                flash('Minden adat kotelezo!', 'error')
-
+                flash('Adatok added!', 'success')
+            
     approved_degrees = ApprovedDegree.query.all()
     return render_template('admin_approved.html', approved_degrees=approved_degrees, user_id=user_id)
-
 
 @app.route("/edit_user_event/<int:user_id>", methods=['GET', 'POST'])
 def edit_user_event(user_id):
     if request.method == 'POST':
         if 'edit_selected_events' in request.form:
-            selected_events = request.form.getlist('selected_events')
+            selected_events = request.form.getlist('selected_events[]')
 
             for event_id in selected_events:
                 event = Events.query.get_or_404(event_id)
                 new_name = request.form[f'name_{event_id}']
                 new_description = request.form[f'description_{event_id}']
 
-                if new_name and new_description:
-                    event.name = new_name
-                    event.description = new_description
-                    db.session.commit()
-                else:
-                    flash('Minden adat kotelezo', 'error')
+                event.name = new_name
+                event.description = new_description
+                db.session.commit()
+            flash('Adatok update!', 'success')
 
         elif 'add_new_event' in request.form:
             new_course_id = request.form['new_course_id']
@@ -357,28 +353,27 @@ def edit_user_event(user_id):
                 new_event = Events(course_id=new_course_id, name=new_name, description=new_description)
                 db.session.add(new_event)
                 db.session.commit()
-                flash('New Event added!', 'success')
+                flash('Events added!', 'success')
             else:
-                flash('Minden adat kotelezo!', 'error')
+                flash('Minden adat kell!', 'error')
 
     events = Events.query.all()
     return render_template('admin_events_edit.html', events=events, user_id=user_id)
+
 
 @app.route("/edit_degrees/<int:user_id>", methods=['GET', 'POST'])
 def edit_degrees(user_id):
     if request.method == 'POST':
         if 'edit_selected_degrees' in request.form:
-            selected_degrees = request.form.getlist('selected_degrees')
+            selected_degrees = request.form.getlist('selected_degrees[]')
 
             for degree_id in selected_degrees:
                 degree = Degree.query.get_or_404(degree_id)
                 new_name = request.form[f'name_{degree_id}']
 
-                if new_name:
-                    degree.name = new_name
-                    db.session.commit()
-                else:
-                    flash('Minden adat kotelezo!', 'error')
+                degree.name = new_name
+                db.session.commit()
+            flash('Adatok update!', 'success')
 
         elif 'add_new_degree' in request.form:
             new_name = request.form['new_name']
@@ -387,9 +382,9 @@ def edit_degrees(user_id):
                 new_degree = Degree(name=new_name)
                 db.session.add(new_degree)
                 db.session.commit()
-                flash('Uj szak added!', 'success')
+                flash('Szak added!', 'success')
             else:
-                flash('Minden adat kotelezo!', 'error')
+                flash('Minden adat kell', 'error')
 
     degrees = Degree.query.all()
     return render_template('admin_degrees_edit.html', degrees=degrees, user_id=user_id)
