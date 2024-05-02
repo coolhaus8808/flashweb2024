@@ -105,6 +105,11 @@
         </tbody>
     </table>
 
+    <br><br>
+    <a href="{{ url_for('edit_degrees', user_id=user_id) }}">Szakok szerkesztése</a>
+    <br><br>
+
+
     <h3> Közlemények</h3>
 
     <table>
@@ -127,6 +132,8 @@
             {% endfor %}
         </tbody>
     </table>
+    <br><br>
+    <a href="{{ url_for('edit_user_event', user_id=user_id) }}">Események szerkesztése</a>
 
     <br><br>
 

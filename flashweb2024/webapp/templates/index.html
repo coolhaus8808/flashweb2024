@@ -14,7 +14,11 @@
     {% if messages %}
     {% for category, message in messages %}
     <div class="alert alert-{{ category }}">
+        {% if category == "registration_success"%}
+        <div style="background-color: #99ff99; color: #000000; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
+        {% else %}
         <div style="background-color: #ff9999; color: #ffffff; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
+        {% endif %}
     </div>
     <br>
     {% endfor %}
@@ -30,16 +34,6 @@
     </form>
 
     <h2>Regisztráció</h2>
-    {% with reg_messages = get_flashed_messages(category_filter='registration', with_categories=true) %}
-    {% if reg_messages %}
-    {% for category, message in reg_messages %}
-    <div class="alert alert-{{ category }}">
-        <div style="background-color: #99ff99; color: #000000; padding: 10px; margin-bottom: 10px;">{{ message }}</div>
-    </div>
-    <br>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
 
     <form action="/register" method="post">
         <label for="reg_username">Felhasználónév:</label><br>
@@ -49,9 +43,11 @@
         <label for="reg_name">Név:</label><br>
         <input type="text" id="reg_name" name="reg_name"><br><br>
         <select id="reg_degree" name="reg_degree">
-            <option value="1">MIK</option>
-            <option value="2">GTK</option>
-            <option value="3">HDD</option>
+        {% for degre in degrees %}
+            {% if degre.id %}
+            <option value={{ degre.id }}> {{ degre.name }}</option>
+            {% endif %}
+        {% endfor %}
         </select><br><br>        <input type="submit" value="Regisztráció">
     </form>
 </body>

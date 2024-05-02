@@ -48,8 +48,9 @@ def protected():
 @app.route("/index")
 def index():
     
+    degrees = Degree.query.all()
     users = User.query.all()
-    return render_template('index.html', users=users)
+    return render_template('index.html', users=users, degrees=degrees)
 
 
 @app.route("/login", methods=['POST'])
@@ -143,9 +144,6 @@ def szuro():
 
     all_courses = Course.query.all()
     
-    # Lekérjük a felhasználót az adatbázisból a user_id alapján
-    user = User.query.filter_by(id=user_id).first()
-
     return render_template('szures.html', user_id=user_id, degrees=degrees, filtered_courses=filtered_courses, all_courses=all_courses)
 
 
@@ -154,9 +152,10 @@ def szuro():
 def hallgatok():
     
     user_id = request.args.get('user_id', type=int)
+    degrees = Degree.query.all()
     # Minden hallgató kurzusainak lekérése az adatbázisból
     student_courses = MyCourse.query.join(User).join(Course).all()
-    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses)
+    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses,degrees=degrees)
 
 
 
@@ -219,7 +218,6 @@ def events():
 
 @app.route("/logout", methods=["POST"])
 def logout():
-    
 
     session.clear()
     # Átirányítás az index oldalra
@@ -330,3 +328,68 @@ def edit_approved_degrees(user_id):
 
     approved_degrees = ApprovedDegree.query.all()
     return render_template('admin_approved.html', approved_degrees=approved_degrees, user_id=user_id)
+
+
+@app.route("/edit_user_event/<int:user_id>", methods=['GET', 'POST'])
+def edit_user_event(user_id):
+    if request.method == 'POST':
+        if 'edit_selected_events' in request.form:
+            selected_events = request.form.getlist('selected_events')
+
+            for event_id in selected_events:
+                event = Events.query.get_or_404(event_id)
+                new_name = request.form[f'name_{event_id}']
+                new_description = request.form[f'description_{event_id}']
+
+                if new_name and new_description:
+                    event.name = new_name
+                    event.description = new_description
+                    db.session.commit()
+                else:
+                    flash('Minden adat kotelezo', 'error')
+
+        elif 'add_new_event' in request.form:
+            new_course_id = request.form['new_course_id']
+            new_name = request.form['new_name']
+            new_description = request.form['new_description']
+
+            if new_course_id and new_name and new_description:
+                new_event = Events(course_id=new_course_id, name=new_name, description=new_description)
+                db.session.add(new_event)
+                db.session.commit()
+                flash('New Event added!', 'success')
+            else:
+                flash('Minden adat kotelezo!', 'error')
+
+    events = Events.query.all()
+    return render_template('admin_events_edit.html', events=events, user_id=user_id)
+
+@app.route("/edit_degrees/<int:user_id>", methods=['GET', 'POST'])
+def edit_degrees(user_id):
+    if request.method == 'POST':
+        if 'edit_selected_degrees' in request.form:
+            selected_degrees = request.form.getlist('selected_degrees')
+
+            for degree_id in selected_degrees:
+                degree = Degree.query.get_or_404(degree_id)
+                new_name = request.form[f'name_{degree_id}']
+
+                if new_name:
+                    degree.name = new_name
+                    db.session.commit()
+                else:
+                    flash('Minden adat kotelezo!', 'error')
+
+        elif 'add_new_degree' in request.form:
+            new_name = request.form['new_name']
+
+            if new_name:
+                new_degree = Degree(name=new_name)
+                db.session.add(new_degree)
+                db.session.commit()
+                flash('Uj szak added!', 'success')
+            else:
+                flash('Minden adat kotelezo!', 'error')
+
+    degrees = Degree.query.all()
+    return render_template('admin_degrees_edit.html', degrees=degrees, user_id=user_id)

@@ -14,10 +14,11 @@
         <input type="hidden" name="user_id" value="{{ user_id }}">
         <label for="degree">Szak:</label>
         <select name="degree" id="degree">
-            <option value="0">Összes</option>
-            <option value="1">MIK</option>
-            <option value="2">GTK</option>
-            <option value="3">HDD</option>
+            {% for degre in degrees %}
+            {% if degre.id %}
+            <option value={{ degre.id }}> {{ degre.name }}</option>
+            {% endif %}
+            {% endfor %}
         </select>
         <input type="submit" value="Szűrés">
     </form>
