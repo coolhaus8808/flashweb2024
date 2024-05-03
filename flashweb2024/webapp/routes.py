@@ -3,7 +3,6 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from webapp import app, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
-from datetime import datetime
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -73,13 +72,13 @@ def login():
         session['username'] = username
         session['userid'] = user.id
         
-        return redirect(url_for('user', user_id=user.id))
+        return redirect(url_for('user_login', user_id=user.id))
  
     else:
         
         flash('Incorrect username or password', 'error')
         return redirect(url_for('index'))
-
+    
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
@@ -89,10 +88,39 @@ def user(user_id):
         mycourses = MyCourse.query.filter_by(user_id=user_id).all()
         courses = Course.query.all()
         events = Events.query.all()
-            
+
 
         degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
         return render_template('user.html',user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events)
+    else:
+        flash('You are not logged in!', 'error')
+        return redirect(url_for('index'))
+
+
+@app.route("/user_login/<int:user_id>")
+def user_login(user_id):
+    # Felhasználó kurzusainak lekérése az adatbázisból
+    if len(session) > 0:
+        if not session.get('user_id', False):
+            user = User.query.get_or_404(user_id)
+            mycourses = MyCourse.query.filter_by(user_id=user_id).all()
+            courses = Course.query.all()
+            events = Events.query.all()
+            degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
+
+            # Ellenõrzés, hogy van-e esemény a felhasználó számára
+            user_events = [event for event in events if event.course_id in [course.course_id for course in mycourses]]
+            if user_events:
+                alert_message = "Uj esemeny !"
+            else:
+                alert_message = ""
+
+            session['user_id'] = True
+        
+        else:
+            alert_message = ""
+        
+        return render_template('user_login.html', user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events, alert_message=alert_message)
     else:
         flash('You are not logged in!', 'error')
         return redirect(url_for('index'))
