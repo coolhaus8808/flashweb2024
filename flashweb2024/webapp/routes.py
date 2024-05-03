@@ -3,6 +3,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from webapp import app, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
+from datetime import datetime
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -135,16 +136,18 @@ def szuro():
     user_id = request.args.get('user_id', type=int)
     degrees = Degree.query.all()
     degree_id = request.args.get('degree', type=int)
+    selected_degree = None
     if degree_id == 0:
         filtered_courses = Course.query.all()
     elif degree_id:
+        selected_degree = Degree.query.get(degree_id)
         filtered_courses = Course.query.join(ApprovedDegree).filter(ApprovedDegree.degree_id == degree_id).all()
     else:
         filtered_courses = []
 
     all_courses = Course.query.all()
     
-    return render_template('szures.html', user_id=user_id, degrees=degrees, filtered_courses=filtered_courses, all_courses=all_courses)
+    return render_template('szures.html', user_id=user_id, degrees=degrees, filtered_courses=filtered_courses, all_courses=all_courses, selected_degree=selected_degree)
 
 
 
@@ -165,13 +168,15 @@ def hallgatok_szures():
     user_id = request.args.get('user_id', type=int)
     # Szûrés a hallgatók szerint
     degree_id = request.args.get('degree', type=int)
+    selected_degree = None
     if degree_id == 0:
         student_courses = MyCourse.query.join(User).join(Course).all()
     elif degree_id:
+        selected_degree = Degree.query.get(degree_id)
         student_courses = MyCourse.query.join(User).join(Course).join(ApprovedDegree).filter(ApprovedDegree.degree_id == degree_id).all()
     else:
         student_courses = []
-    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses,degrees=degrees)
+    return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses,degrees=degrees,selected_degree=selected_degree)
 
 
 
@@ -205,6 +210,11 @@ def kurzus_felvetel(user_id):
     user = User.query.get_or_404(user_id)
     user_degree_id = user.degree_id
     available_courses = Course.query.join(ApprovedDegree).filter(ApprovedDegree.degree_id == user_degree_id).all()
+    
+    # Ha nincsenek elérhetõ kurzusok az admin számára
+    if not available_courses:
+        flash('Nincsenek elerheto kurzusok ehhez a szakhoz.', 'error')
+        return render_template('kurzusfelvetel.html', user_id=user_id)
 
     return render_template('kurzusfelvetel.html', user_id=user_id, available_courses=available_courses)
 
@@ -317,6 +327,12 @@ def edit_approved_degrees(user_id):
                     
         elif 'add_new_degree' in request.form:
             new_course_id = request.form['new_course_id']
+            new_course_id_in_courses = Course.query.get(new_course_id)
+            if not new_course_id_in_courses:
+                flash('Nincs ilyen id-val kurzus!','error')
+                approved_degrees = ApprovedDegree.query.all()
+                return render_template('admin_approved.html', approved_degrees=approved_degrees, user_id=user_id)
+            
             new_degree_id = request.form['new_degree_id']
             new_degree = ApprovedDegree(course_id=new_course_id, degree_id=new_degree_id)
             if new_course_id and new_degree_id and new_degree:

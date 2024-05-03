@@ -7,7 +7,11 @@
 </head>
 <body style="background-color: lightgreen;">
 
-    <h1>Hallgatók szakok szerint</h1>
+    {% if selected_degree %}
+    <h1>Hallgatók kurzusai {{ selected_degree.name }} szak szerint: </h1>
+    {% else %}
+    <h1>Hallgatók szűrése</h1>
+    {% endif %}
 
     <!-- Szűrő form -->
     <form action="/hallgatok_szures" method="get">

@@ -8,7 +8,11 @@
 </head>
 
 <body style="background-color: lightblue;">
+    {% if selected_degree %}
+    <h1>Szűrés szak szerint: {{ selected_degree.name }}</h1>
+    {% else %}
     <h1>Szűrés szak szerint:</h1>
+    {% endif %}
     <form action="/szuro" method="get">
         <input type="hidden" name="user_id" value="{{ user_id }}">
         <label for="degree">Szak:</label>
