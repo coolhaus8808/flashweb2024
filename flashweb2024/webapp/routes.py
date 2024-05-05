@@ -1,8 +1,22 @@
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from webapp import app, db
+from webapp import app, socketio, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
+
+
+# Az üzenetküldés kezelése SocketIO-val
+@socketio.on('message')
+def handle_message(data):
+    print('Received message:', data)
+    socketio.emit('response', {'data': 'Response data'})
+
+# WebSocket védett végpont
+@socketio.on('protected')
+@jwt_required()
+def handle_protected():
+    current_user = get_jwt_identity()
+    socketio.emit('protected_response', {'logged_in_as': current_user})
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -296,6 +310,15 @@ def edit_user(user_id):
                 
                 db.session.commit()
             flash('Adatok frissulve!', 'success')
+            
+        elif 'clear_selected_users' in request.form:
+            selected_users = request.form.getlist('selected_users[]')
+            for user_id in selected_users:
+                user = User.query.get_or_404(int(user_id))
+                db.session.delete(user)                
+                db.session.commit()
+            flash('Adatok clear!', 'success')
+
     
     users = User.query.all()
     return render_template('admin_user_edit.html', users=users, user_id=user_id)
@@ -317,6 +340,17 @@ def edit_course(user_id):
                 
                 db.session.commit()
             flash('Adatok frissulve!', 'success')
+
+
+        if 'clear_selected_courses' in request.form:
+            selected_courses = request.form.getlist('selected_courses[]')
+            for course_id in selected_courses:
+                course = Course.query.get_or_404(int(course_id))
+                db.session.delete(course) 
+                db.session.commit()
+                
+            flash('Adatok clear!', 'success')
+            
         elif 'add_new_course' in request.form:
             new_code = request.form['new_code']
             new_name = request.form['new_name']
@@ -352,6 +386,17 @@ def edit_approved_degrees(user_id):
                 db.session.commit()
                 
             flash('Adatok update!', 'success')
+            
+        elif 'clear_selected_degrees' in request.form:
+            selected_degrees = request.form.getlist('selected_degrees[]')
+
+            for degree_id in selected_degrees:
+                degree = ApprovedDegree.query.get_or_404(degree_id)
+                db.session.delete(degree)
+                db.session.commit()
+                
+            flash('Adatok clear!', 'success')
+
                     
         elif 'add_new_degree' in request.form:
             new_course_id = request.form['new_course_id']
@@ -400,6 +445,16 @@ def edit_user_event(user_id):
                 flash('Events added!', 'success')
             else:
                 flash('Minden adat kell!', 'error')
+                
+        elif 'clear_selected_events' in request.form:
+            selected_events = request.form.getlist('selected_events[]')
+            
+            for event_id in selected_events:
+                    event = Events.query.get_or_404(event_id)
+                    db.session.delete(event)
+                    db.session.commit()    
+                    flash('Events clear!', 'success')
+
 
     events = Events.query.all()
     return render_template('admin_events_edit.html', events=events, user_id=user_id)
@@ -418,6 +473,16 @@ def edit_degrees(user_id):
                 degree.name = new_name
                 db.session.commit()
             flash('Adatok update!', 'success')
+            
+        elif 'clear_selected_degrees' in request.form:
+            selected_degrees = request.form.getlist('selected_degrees[]')
+
+            for degree_id in selected_degrees:
+                degree = Degree.query.get_or_404(degree_id)
+                db.session.delete(degree)
+                db.session.commit()
+            flash('Degrees clear!', 'success')
+
 
         elif 'add_new_degree' in request.form:
             new_name = request.form['new_name']

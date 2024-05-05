@@ -6,7 +6,7 @@
     <ProjectGuid>a4e963c2-9063-4735-b88c-3064cf0d72f0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{789894c7-04a9-4a11-a6b5-3f4435165112};{1b580a1a-fdb3-4b32-83e1-6407eb2722e6};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
-    <StartupFile>run.py</StartupFile>
+    <StartupFile>webapp\run.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -28,14 +28,18 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="webapp\static\" />
     <Folder Include="webapp\" />
     <Folder Include="webapp\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="webapp\config.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="password_conversion.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="run.py" />
+    <Compile Include="webapp\run.py" />
     <Compile Include="webapp\models.py">
       <SubType>Code</SubType>
     </Compile>
@@ -43,7 +47,9 @@
     <Compile Include="webapp\__init__.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="webapp\phpmyadmin.txt" />
+    <Content Include="webapp\static\main.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="webapp\templates\admin.html" />
     <Content Include="webapp\templates\admin_approved.html" />
     <Content Include="webapp\templates\admin_cours_edit.html" />
