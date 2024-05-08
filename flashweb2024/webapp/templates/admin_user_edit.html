@@ -33,6 +33,7 @@
             </thead>
             <tbody>
                 {% for user in users %}
+                {% if user.username != "admin" %}
                 <tr>
                     <td>{{ user.id }}</td>
                     <td><input type="text" name="username_{{ user.id }}" value="{{ user.username }}"></td>
@@ -40,6 +41,7 @@
                     <td><input type="text" name="degree_{{ user.id }}" value="{{ user.degree_id }}"></td>
                     <td><input type="checkbox" name="selected_users[]" value="{{ user.id }}"></td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>

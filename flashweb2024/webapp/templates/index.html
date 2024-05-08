@@ -43,11 +43,11 @@
         <label for="reg_name">Név:</label><br>
         <input type="text" id="reg_name" name="reg_name"><br><br>
         <select id="reg_degree" name="reg_degree">
-        {% for degre in degrees %}
+            {% for degre in degrees %}
             {% if degre.id %}
             <option value={{ degre.id }}> {{ degre.name }}</option>
             {% endif %}
-        {% endfor %}
+            {% endfor %}
         </select><br><br>        <input type="submit" value="Regisztráció">
     </form>
 </body>

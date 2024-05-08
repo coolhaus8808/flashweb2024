@@ -1,17 +1,17 @@
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+ï»¿from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from webapp import app, socketio, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
 
 
-# Az üzenetküldés kezelése SocketIO-val
+# Az Ã¼zenetkÃ¼ldÃ©s kezelÃ©se SocketIO-val
 @socketio.on('message')
 def handle_message(data):
     print('Received message:', data)
     socketio.emit('response', {'data': 'Response data'})
 
-# WebSocket védett végpont
+# WebSocket vÃ©dett vÃ©gpont
 @socketio.on('protected')
 @jwt_required()
 def handle_protected():
@@ -37,7 +37,7 @@ def add_no_cache_headers(response):
     return response
 
 
-# Felhasználó bejelentkezése API
+# FelhasznÃ¡lÃ³ bejelentkezÃ©se API
 @app.route("/api/login", methods=['POST'])
 def api_login():
     data = request.get_json()
@@ -51,7 +51,7 @@ def api_login():
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-# Példa védett végpont JWT token-nel
+# PÃ©lda vÃ©dett vÃ©gpont JWT token-nel
 @app.route("/api/protected", methods=['GET'])
 @jwt_required()
 def protected():
@@ -96,7 +96,7 @@ def login():
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
-    # Felhasználó kurzusainak lekérése az adatbázisból
+    # FelhasznÃ¡lÃ³ kurzusainak lekÃ©rÃ©se az adatbÃ¡zisbÃ³l
     if len(session) >0:
         user = User.query.get_or_404(user_id)
         mycourses = MyCourse.query.filter_by(user_id=user_id).all()
@@ -113,7 +113,7 @@ def user(user_id):
 
 @app.route("/user_login/<int:user_id>")
 def user_login(user_id):
-    # Felhasználó kurzusainak lekérése az adatbázisból
+    # FelhasznÃ¡lÃ³ kurzusainak lekÃ©rÃ©se az adatbÃ¡zisbÃ³l
     if len(session) > 0:
         if not session.get('user_id', False):
             user = User.query.get_or_404(user_id)
@@ -122,7 +122,7 @@ def user_login(user_id):
             events = Events.query.all()
             degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
 
-            # Ellenõrzés, hogy van-e esemény a felhasználó számára
+            # EllenÅ‘rzÃ©s, hogy van-e esemÃ©ny a felhasznÃ¡lÃ³ szÃ¡mÃ¡ra
             user_events = [event for event in events if event.course_id in [course.course_id for course in mycourses]]
             if user_events:
                 alert_message = "Uj esemeny !"
@@ -152,7 +152,7 @@ def register():
         flash('Username already taken', 'registration_error')
         return redirect(url_for('index', _anchor='registration'))
 
-    # Csak az új felhasználókhoz hozzáadott sózott jelszó
+    # Csak az Ãºj felhasznÃ¡lÃ³khoz hozzÃ¡adott sÃ³zott jelszÃ³
     password_hash = generate_password_hash(password)
 
     new_user = User(username=username, password_hash=password_hash, name=name, degree_id=degree_id)
@@ -165,7 +165,7 @@ def register():
 def convert_passwords():
     users = User.query.all()
     for user in users:
-        # Csak ahol van jelszó, de nincs sózott jelszó
+        # Csak ahol van jelszÃ³, de nincs sÃ³zott jelszÃ³
         if user.password and not user.password_hash:
             user.password_hash = generate_password_hash(user.password)
             db.session.commit()
@@ -198,7 +198,7 @@ def hallgatok():
     
     user_id = request.args.get('user_id', type=int)
     degrees = Degree.query.all()
-    # Minden hallgató kurzusainak lekérése az adatbázisból
+    # Minden hallgatÃ³ kurzusainak lekÃ©rÃ©se az adatbÃ¡zisbÃ³l
     student_courses = MyCourse.query.join(User).join(Course).all()
     return render_template('hallgatok.html',user_id=user_id, student_courses=student_courses,degrees=degrees)
 
@@ -208,7 +208,7 @@ def hallgatok():
 def hallgatok_szures():
     degrees = Degree.query.all()
     user_id = request.args.get('user_id', type=int)
-    # Szûrés a hallgatók szerint
+    # SzÅ±rÃ©s a hallgatÃ³k szerint
     degree_id = request.args.get('degree', type=int)
     selected_degree = None
     if degree_id == 0:
@@ -225,22 +225,22 @@ def hallgatok_szures():
 @app.route("/kurzus_felvetel/<int:user_id>", methods=['GET', 'POST'])
 def kurzus_felvetel(user_id):
     if request.method == 'POST':
-        # A felhasználó által kiválasztott kurzus kódjának lekérése a formról
+        # A felhasznÃ¡lÃ³ Ã¡ltal kivÃ¡lasztott kurzus kÃ³djÃ¡nak lekÃ©rÃ©se a formrÃ³l
         course_code = request.form['course_code']
         
 
-        # Ellenõrizzük, hogy a kurzus már fel van-e véve a felhasználó által
+        # EllenÅ‘rizzÃ¼k, hogy a kurzus mÃ¡r fel van-e vÃ©ve a felhasznÃ¡lÃ³ Ã¡ltal
         user_courses = MyCourse.query.filter_by(user_id=user_id).all()
         for user_course in user_courses:
             if user_course.course.code == course_code:
                 flash('A kurzust mar felvette', 'error')
                 return redirect(url_for('kurzus_felvetel', user_id=user_id))
             
-        # Az adott kurzus lekérése az adatbázisból a kód alapján
+        # Az adott kurzus lekÃ©rÃ©se az adatbÃ¡zisbÃ³l a kÃ³d alapjÃ¡n
         course = Course.query.filter_by(code=course_code).first()
 
 
-        # Új kurzus hozzáadása a felhasználó kurzusaihoz
+        # Ãšj kurzus hozzÃ¡adÃ¡sa a felhasznÃ¡lÃ³ kurzusaihoz
         new_course = MyCourse(user_id=user_id, course_id=course.id)
         db.session.add(new_course)
         db.session.commit()
@@ -248,12 +248,12 @@ def kurzus_felvetel(user_id):
         flash('Sikeres kurzus felvetel: {}'.format(course_code), 'success')
         return redirect(url_for('kurzus_felvetel', user_id=user_id))
 
-    # GET kérés esetén a kurzusfelvetel.html
+    # GET kÃ©rÃ©s esetÃ©n a kurzusfelvetel.html
     user = User.query.get_or_404(user_id)
     user_degree_id = user.degree_id
     available_courses = Course.query.join(ApprovedDegree).filter(ApprovedDegree.degree_id == user_degree_id).all()
     
-    # Ha nincsenek elérhetõ kurzusok az admin számára
+    # Ha nincsenek elÃ©rhetÅ‘ kurzusok az admin szÃ¡mÃ¡ra
     if not available_courses:
         flash('Nincsenek elerheto kurzusok ehhez a szakhoz.', 'error')
         return render_template('kurzusfelvetel.html', user_id=user_id)
@@ -273,7 +273,7 @@ def events():
 def logout():
 
     session.clear()
-    # Átirányítás az index oldalra
+    # ÃtirÃ¡nyÃ­tÃ¡s az index oldalra
     return redirect(url_for("index"))
 
 @app.route("/admin/<int:user_id>")
@@ -314,10 +314,14 @@ def edit_user(user_id):
         elif 'clear_selected_users' in request.form:
             selected_users = request.form.getlist('selected_users[]')
             for user_id in selected_users:
-                user = User.query.get_or_404(int(user_id))
-                db.session.delete(user)                
-                db.session.commit()
-            flash('Adatok clear!', 'success')
+                if MyCourse.query.filter_by(user_id=user_id).first():
+                    flash('Clean error, first Mycourse table user_id!', 'error')
+                    return redirect(url_for('edit_user', user_id=user_id))
+                else:
+                    user = User.query.get_or_404(int(user_id))
+                    db.session.delete(user)
+                    db.session.commit()
+            flash('User cleaned', 'success')
 
     
     users = User.query.all()
@@ -345,9 +349,13 @@ def edit_course(user_id):
         if 'clear_selected_courses' in request.form:
             selected_courses = request.form.getlist('selected_courses[]')
             for course_id in selected_courses:
-                course = Course.query.get_or_404(int(course_id))
-                db.session.delete(course) 
-                db.session.commit()
+                if ApprovedDegree.query.filter_by(course_id=course_id).first():
+                    flash('Clean error, first ApprovedDegree table course_id!', 'error')
+                    return redirect(url_for('edit_course', user_id=user_id))
+                else:
+                    course = Course.query.get_or_404(int(course_id))
+                    db.session.delete(course) 
+                    db.session.commit()
                 
             flash('Adatok clear!', 'success')
             
@@ -356,7 +364,7 @@ def edit_course(user_id):
             new_name = request.form['new_name']
             new_credit = request.form['new_credit']
 
-            # Ellenõrzés, hogy az adatok megfelelõek-e, és hozzáadás az adatbázishoz
+            # EllenÅ‘rzÃ©s, hogy az adatok megfelelÅ‘ek-e, Ã©s hozzÃ¡adÃ¡s az adatbÃ¡zishoz
             if new_code and new_name and new_credit:
                 new_course = Course(code=new_code, name=new_name, credit=new_credit)
                 db.session.add(new_course)
@@ -478,9 +486,13 @@ def edit_degrees(user_id):
             selected_degrees = request.form.getlist('selected_degrees[]')
 
             for degree_id in selected_degrees:
-                degree = Degree.query.get_or_404(degree_id)
-                db.session.delete(degree)
-                db.session.commit()
+                if ApprovedDegree.query.filter_by(degree_id=degree_id).first():
+                    flash('Clean error, first ApprovedDegree table course_id!', 'error')
+                    return redirect(url_for('edit_degrees', user_id=user_id))
+                else:
+                    degree = Degree.query.get_or_404(degree_id)
+                    db.session.delete(degree)
+                    db.session.commit()
             flash('Degrees clear!', 'success')
 
 

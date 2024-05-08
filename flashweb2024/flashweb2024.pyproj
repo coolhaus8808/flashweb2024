@@ -52,7 +52,7 @@
     </Content>
     <Content Include="webapp\templates\admin.html" />
     <Content Include="webapp\templates\admin_approved.html" />
-    <Content Include="webapp\templates\admin_cours_edit.html" />
+    <Content Include="webapp\templates\admin_course_edit.html" />
     <Content Include="webapp\templates\admin_degrees_edit.html" />
     <Content Include="webapp\templates\admin_events_edit.html" />
     <Content Include="webapp\templates\admin_user_edit.html" />
