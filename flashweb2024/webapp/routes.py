@@ -3,20 +3,14 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from webapp import app, socketio, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
+from datetime import datetime, date
 
 
-# Az üzenetküldés kezelése SocketIO-val
-@socketio.on('message')
-def handle_message(data):
-    print('Received message:', data)
-    socketio.emit('response', {'data': 'Response data'})
+@socketio.on('connect')
+def handle_connect():
+    print('A client has connected to the server!')
 
-# WebSocket védett végpont
-@socketio.on('protected')
-@jwt_required()
-def handle_protected():
-    current_user = get_jwt_identity()
-    socketio.emit('protected_response', {'logged_in_as': current_user})
+
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -125,16 +119,26 @@ def user_login(user_id):
             # Ellenőrzés, hogy van-e esemény a felhasználó számára
             user_events = [event for event in events if event.course_id in [course.course_id for course in mycourses]]
             if user_events:
-                alert_message = "Uj esemeny !"
+                mai_datum = date.today()
+                mai_datum_konvert = datetime(mai_datum.year, mai_datum.month, mai_datum.day)
+                
+                for event in user_events:
+                    event_date = datetime.strptime(event.description.split(': ')[1], '%Y.%m.%d.')
+                    
+                    if event_date > mai_datum_konvert:  
+                        alert_message = "Új esemény!"
+                        socketio.emit('new_event', {'message': alert_message}, room=user_id)
+                        break  # ha találtunk egy jövőbeli eseményt, kilépünk a ciklusból
+                    else:
+                        alert_message = ""
+                        socketio.emit('new_event', {'message': alert_message}, room=user_id)
+
+                session['user_id'] = True
+        
             else:
                 alert_message = ""
-
-            session['user_id'] = True
-        
-        else:
-            alert_message = ""
-        
-        return render_template('user_login.html', user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events, alert_message=alert_message)
+            
+            return render_template('user_login.html', user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events, alert_message=alert_message)
     else:
         flash('You are not logged in!', 'error')
         return redirect(url_for('index'))
