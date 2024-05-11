@@ -137,7 +137,7 @@
 
     <br><br>
 
-    <form action="{{ url_for('logout') }}" method="post">
+    <form action="{{ url_for('logout', user_id=user_id) }}" method="post">
         <button type="submit">Kijelentkezés</button>
     </form>
 

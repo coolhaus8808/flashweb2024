@@ -56,6 +56,7 @@
     <Content Include="webapp\templates\admin_degrees_edit.html" />
     <Content Include="webapp\templates\admin_events_edit.html" />
     <Content Include="webapp\templates\admin_user_edit.html" />
+    <Content Include="webapp\templates\chat.html" />
     <Content Include="webapp\templates\esemenyek.html" />
     <Content Include="webapp\templates\hallgatok.html" />
     <Content Include="webapp\templates\index.html" />

@@ -4,7 +4,27 @@ from webapp import app, socketio, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.models import Events, User, MyCourse, Course, Degree, ApprovedDegree
 from datetime import datetime, date
+from flask_socketio import send, emit
 
+@app.route("/chat/<int:user_id>")
+def chat(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.login == 1:
+        username = user.username
+        return render_template('chat.html', user_id=user_id, username=username)
+    else:
+        flash('Sign in!', 'success')  
+        return redirect(url_for("index"))
+
+
+@socketio.on('chat_message')
+def handle_chat_message(data):
+    message = data['message']
+    user_id = data['user_id']
+    user = User.query.get(user_id)
+    username = user.username
+    emit('chat_message', {'username': username, 'message': message}, broadcast=True)
+    
 
 @socketio.on('connect')
 def handle_connect():
@@ -63,36 +83,30 @@ def index():
 
 @app.route("/login", methods=['POST'])
 def login():
-    
     username = request.form['username']
     password = request.form['password']
     user = authenticate(username, password)
     if user and username == "admin":
-        
         session['username'] = username
         session['userid'] = user.id
+        user.login = 1  
+        db.session.commit()  
         return redirect(url_for('admin', user_id=user.id))
-        
-        
-        
     elif user:
-        
         session['username'] = username
         session['userid'] = user.id
-        
+        user.login = 1 
+        db.session.commit() 
         return redirect(url_for('user_login', user_id=user.id))
- 
     else:
-        
         flash('Incorrect username or password', 'error')
         return redirect(url_for('index'))
     
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
-    # Felhasználó kurzusainak lekérése az adatbázisból
-    if len(session) >0:
-        user = User.query.get_or_404(user_id)
+    user = User.query.get_or_404(user_id)
+    if user.login == 1:
         mycourses = MyCourse.query.filter_by(user_id=user_id).all()
         courses = Course.query.all()
         events = Events.query.all()
@@ -107,38 +121,35 @@ def user(user_id):
 
 @app.route("/user_login/<int:user_id>")
 def user_login(user_id):
-    # Felhasználó kurzusainak lekérése az adatbázisból
-    if len(session) > 0:
-        if not session.get('user_id', False):
-            user = User.query.get_or_404(user_id)
-            mycourses = MyCourse.query.filter_by(user_id=user_id).all()
-            courses = Course.query.all()
-            events = Events.query.all()
-            degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
+    user = User.query.get_or_404(user_id)
+    if user.login == 1:
+        mycourses = MyCourse.query.filter_by(user_id=user_id).all()
+        courses = Course.query.all()
+        events = Events.query.all()
+        degrees = ApprovedDegree.query.distinct(ApprovedDegree.degree_id).all()
 
-            # Ellenőrzés, hogy van-e esemény a felhasználó számára
-            user_events = [event for event in events if event.course_id in [course.course_id for course in mycourses]]
-            if user_events:
-                mai_datum = date.today()
-                mai_datum_konvert = datetime(mai_datum.year, mai_datum.month, mai_datum.day)
+        # Ellenőrzés, hogy van-e esemény a felhasználó számára
+        user_events = [event for event in events if event.course_id in [course.course_id for course in mycourses]]
+        if user_events:
+            mai_datum = date.today()
+            mai_datum_konvert = datetime(mai_datum.year, mai_datum.month, mai_datum.day)
                 
-                for event in user_events:
-                    event_date = datetime.strptime(event.description.split(': ')[1], '%Y.%m.%d.')
+            for event in user_events:
+                event_date = datetime.strptime(event.description.split(': ')[1], '%Y.%m.%d.')
                     
-                    if event_date > mai_datum_konvert:  
-                        alert_message = "Új esemény!"
-                        socketio.emit('new_event', {'message': alert_message}, room=user_id)
-                        break  # ha találtunk egy jövőbeli eseményt, kilépünk a ciklusból
-                    else:
-                        alert_message = ""
-                        socketio.emit('new_event', {'message': alert_message}, room=user_id)
+                if event_date > mai_datum_konvert:  
+                    alert_message = "Új esemény!"
+                    socketio.emit('new_event', {'message': alert_message}, room=user_id)
+                    break  # ha találtunk egy jövőbeli eseményt, kilépünk a ciklusból
+                else:
+                    alert_message = ""
+                    socketio.emit('new_event', {'message': alert_message}, room=user_id)
 
-                session['user_id'] = True
         
-            else:
-                alert_message = ""
+        else:
+            alert_message = ""
             
-            return render_template('user_login.html', user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events, alert_message=alert_message)
+        return render_template('user_login.html', user=user.username, user_id=user_id, mycourses=mycourses, courses=courses, degrees=degrees, events=events, alert_message=alert_message)
     else:
         flash('You are not logged in!', 'error')
         return redirect(url_for('index'))
@@ -264,20 +275,24 @@ def kurzus_felvetel(user_id):
 
     return render_template('kurzusfelvetel.html', user_id=user_id, available_courses=available_courses)
 
-@app.route("/events")
-def events():
+@app.route("/events/<int:user_id>")
+def events(user_id):
 
-    user_id = session.get('userid')
+    user_id = user_id
     user_courses = MyCourse.query.filter_by(user_id=user_id).all()
     events = Events.query.all()
 
     return render_template('esemenyek.html',user_id=user_id, user_courses=user_courses, events=events)
 
-@app.route("/logout", methods=["POST"])
-def logout():
-
+@app.route("/logout/<int:user_id>", methods=["POST"])
+def logout(user_id):
+    user_id = user_id
+    if user_id:
+        user = User.query.get(user_id)
+        if user:
+            user.login = 0
+            db.session.commit()
     session.clear()
-    # Átirányítás az index oldalra
     return redirect(url_for("index"))
 
 @app.route("/admin/<int:user_id>")

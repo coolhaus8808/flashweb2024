@@ -37,7 +37,10 @@
 
         </tbody>
     </table>
+    <br>
+    <br>
 
+    <a href="{{ url_for('chat', user_id=user_id) }}">CHAT</a>
 
 
     <br>
@@ -62,12 +65,12 @@
     <br>
     <br>
 
-    <a href="{{ url_for('events') }}">ESEMÉNYEK</a>
+    <a href="{{ url_for('events', user_id=user_id) }}">ESEMÉNYEK</a>
     <br>
     <br>
 
 
-    <form action="{{ url_for('logout') }}" method="post">
+    <form action="{{ url_for('logout', user_id=user_id) }}" method="post">
         <button type="submit">Kijelentkezés</button>
     </form>
 </body>

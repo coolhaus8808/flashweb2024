@@ -9,6 +9,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(100))
     name = db.Column(db.String(100))
     degree_id = db.Column(db.Integer, db.ForeignKey('degrees.id'))
+    login = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
