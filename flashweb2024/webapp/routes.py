@@ -23,8 +23,9 @@ def handle_chat_message(data):
     user_id = data['user_id']
     user = User.query.get(user_id)
     username = user.username
-    emit('chat_message', {'username': username, 'message': message}, broadcast=True)
-    
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    emit('chat_message', {'timestamp': timestamp, 'username': username, 'message': message}, broadcast=True)
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -34,7 +35,7 @@ def handle_connect():
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
-    if user and check_password_hash(user.password_hash, password):
+    if user and check_password_hash(user.password_hash, password + app.config['sozas']):
         return user    
 
 def identity(payload):
@@ -166,9 +167,9 @@ def register():
     if existing_user:
         flash('Username already taken', 'registration_error')
         return redirect(url_for('index', _anchor='registration'))
-
-    # Csak az új felhasználókhoz hozzáadott sózott jelszó
-    password_hash = generate_password_hash(password)
+    
+    fuszeres_password = password + app.config['sozas']
+    password_hash = generate_password_hash(fuszeres_password)
 
     new_user = User(username=username, password_hash=password_hash, name=name, degree_id=degree_id)
     db.session.add(new_user)
