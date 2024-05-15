@@ -159,6 +159,7 @@ def user_login(user_id):
 def register():
     username = request.form['reg_username']
     password = request.form['reg_password']
+    password2 = request.form['reg_password2']
     name = request.form['reg_name']
     degree_id = request.form['reg_degree']
     
@@ -166,17 +167,21 @@ def register():
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         flash('Username already taken', 'registration_error')
-        return redirect(url_for('index', _anchor='registration'))
-    
-    fuszeres_password = password + app.config['sozas']
-    password_hash = generate_password_hash(fuszeres_password)
+        return redirect(url_for('index'))
+    elif password == password2:
+        fuszeres_password = password + app.config['sozas']
+        password_hash = generate_password_hash(fuszeres_password)
 
-    new_user = User(username=username, password_hash=password_hash, name=name, degree_id=degree_id)
-    db.session.add(new_user)
-    db.session.commit()
+        new_user = User(username=username, password_hash=password_hash, name=name, degree_id=degree_id)
+        db.session.add(new_user)
+        db.session.commit()
 
-    flash('Registration successful!', 'registration_success')
-    return redirect(url_for('index', _anchor='registration'))
+        flash('Registration successful!', 'registration_success')
+        return redirect(url_for('index'))
+    elif password != password2 :
+        flash('Password 1-2 nem egyforma', 'registration_error')
+        return redirect(url_for('index'))
+
 
 def convert_passwords():
     users = User.query.all()
